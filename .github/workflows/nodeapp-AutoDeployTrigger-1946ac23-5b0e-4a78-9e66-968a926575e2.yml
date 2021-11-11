@@ -34,8 +34,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: heroapp.azurecr.io/pythonapp:${{ github.sha }}
-          file: ./Dockerfile
+          tags: heroapp.azurecr.io/nodeapp:${{ github.sha }}
+          file: ./src/node/Dockerfile
 
 
   deploy:
@@ -57,4 +57,4 @@ jobs:
             echo "Installing containerapp extension"
             az extension add --source https://workerappscliextension.blob.core.windows.net/azure-cli-extension/containerapp-0.1.12-py2.py3-none-any.whl --yes
             echo "Starting Deploying"
-            az containerapp update -n pythonapp -g HeroAppSample -i heroapp.azurecr.io/pythonapp:${{ github.sha }} --registry-login-server heroapp.azurecr.io --registry-username  ${{ secrets.REGISTRY_USERNAME }} --registry-password ${{ secrets.REGISTRY_PASSWORD }} --debug
+            az containerapp update -n nodeapp -g HeroAppSample -i heroapp.azurecr.io/nodeapp:${{ github.sha }} --registry-login-server heroapp.azurecr.io --registry-username  ${{ secrets.REGISTRY_USERNAME }} --registry-password ${{ secrets.REGISTRY_PASSWORD }} --debug
