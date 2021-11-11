@@ -22,7 +22,7 @@ app.get('/order', (_req, res) => {
     fetch(`${stateUrl}/order`)
         .then((response) => {
             if (!response.ok) {
-                throw "Could not get state.";
+                throw "Could not get state!";
             }
 
             return response.text();
