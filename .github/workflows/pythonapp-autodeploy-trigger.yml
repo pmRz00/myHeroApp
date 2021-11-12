@@ -57,8 +57,6 @@ jobs:
           pip install -q --extra-index-url https://azcliprod.blob.core.windows.net/beta/simple/ azure-cli
           echo "***************installed cli beta*******************"
           echo "$CWD/oidc-venv/bin" >> $GITHUB_PATH
-          TREE="$(ls -R)"
-          echo "$TREE"
           
       - name: 'Az CLI login'
         uses: azure/login@v1.4.0
