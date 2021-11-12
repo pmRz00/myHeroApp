@@ -8,7 +8,10 @@ on:
       [ main ]
 
   # Allow mannually trigger 
-  workflow_dispatch:      
+  workflow_dispatch:
+
+permissions:
+      id-token: write  
 
 jobs:
   build:
@@ -37,10 +40,30 @@ jobs:
       #     tags: heroapp.azurecr.io/pythonapp:${{ github.sha }}
       #     file: ./src/python/Dockerfile
 
-      - name: Azure Login
-        uses: azure/login@v1
+      # - name: Azure Login
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Installing CLI-beta for OpenID Connect
+        run: |
+          cd ../..
+          CWD="$(pwd)"
+          python3 -m venv oidc-venv
+          . oidc-venv/bin/activate
+          echo "activated environment"
+          python3 -m pip install -q --upgrade pip
+          echo "started installing cli beta"
+          pip install -q --extra-index-url https://azcliprod.blob.core.windows.net/beta/simple/ azure-cli
+          echo "***************installed cli beta*******************"
+          echo "$CWD/oidc-venv/bin" >> $GITHUB_PATH
+          
+      - name: 'Az CLI login'
+        uses: azure/login@v1.4.0
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENTID }}
+          tenant-id: ${{ secrets.AZURE_TENANTID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTIONID }}
 
       - name: Build and push container image to registry
         uses: azure/CLI@v1
