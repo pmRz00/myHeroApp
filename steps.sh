@@ -59,6 +59,7 @@ az acr create \
     --admin-enabled
 
 ACR_PASSWORD=`az acr credential show -n $ACR_NAME --query passwords[0].value  --out tsv`
+# set secrets.REGISTRY_USERNAME and secrets.REGISTRY_PASSWORD
 
 # build and push container images 
 az acr build -t pythonapp:latest -r $ACR_NAME ./src/python
@@ -111,3 +112,7 @@ az monitor log-analytics query \
   --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == 'nodeapp' and (Log_s contains 'persisted' or Log_s contains 'order') | project ContainerAppName_s, Log_s, TimeGenerated | take 5" \
   --out table
 
+sed -i "s|<YOUR_ACR>|$ACR_NAME|" ./.github/workflows/pythonapp-autodeploy-trigger.yml
+sed -i "s|<RESOURCE_GROUP> |$RESOURCE_GROUP|" ./.github/workflows/pythonapp-autodeploy-trigger.yml
+sed -i "s|<YOUR_ACR>|$ACR_NAME|" ./.github/workflows/nodeapp-autodeploy-trigger.yml
+sed -i "s|<RESOURCE_GROUP> |$RESOURCE_GROUP|" ./.github/workflows/nodeapp-autodeploy-trigger.yml
