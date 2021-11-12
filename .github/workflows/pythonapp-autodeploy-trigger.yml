@@ -71,7 +71,7 @@ jobs:
           azcliversion: 2.30.0
           inlineScript: |
             echo "Building and pushing image to registry"
-            az acr build -t pythonapp:${{ github.sha }} -r heroapp.azurecr.io ./myHeroApp/myHeroApp/main/src/python
+            az acr build -t pythonapp:${{ github.sha }} -r heroapp.azurecr.io ./main/src/python
 
 
   deploy:
