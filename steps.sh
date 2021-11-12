@@ -1,12 +1,14 @@
 # set parameter variables
-RESOURCE_GROUP="HeroAppSample"
-NAME="hero"
-LOCATION="canadacentral"
-CONTAINERAPPS_ENVIRONMENT="HeroApp-env"
-LOG_ANALYTICS_WORKSPACE="HeroApp-logs"
-COSMOSDB_ACCOUNT_NAME="heroapp-cosmosdb"
-COSMOSDB_DB_NAME="HeroApp-cosmosdb"
+PREFIX="shademo"
+RESOURCE_GROUP="$PREFIX-RG"
+LOCATION="northeurope"
+CONTAINERAPPS_ENVIRONMENT="$PREFIX-app-env"
+LOG_ANALYTICS_WORKSPACE="$PREFIX-la"
+COSMOSDB_ACCOUNT_NAME="$PREFIX-cosmosdb"
+COSMOSDB_DB_NAME="$PREFIX-cosmosdb"
 COSMOSDB_COLLECTION_NAME="order"
+ACR_NAME=$PREFIX"reg"
+ACR_URL="$ACR_NAME.azurecr.io"
 
 # set up azure cli and login
 az login --use-device-code
@@ -28,7 +30,7 @@ LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET=`az monitor log-analytics workspace get-sh
 
 az cosmosdb create \
     --name $COSMOSDB_ACCOUNT_NAME \
-    --resource-group $RESOURCE_GROUP 
+    --resource-group $RESOURCE_GROUP
 
 az cosmosdb database create \
     --name $COSMOSDB_ACCOUNT_NAME \
@@ -42,9 +44,25 @@ az cosmosdb collection create \
     --resource-group $RESOURCE_GROUP \
     --partition-key-path /partitionKey
 
+COSMOSDB_ENDPOINT=`az cosmosdb show -n $COSMOSDB_ACCOUNT_NAME  -g $RESOURCE_GROUP --query documentEndpoint --out tsv`
+COSMOSDB_MASTER_KEY=`az cosmosdb keys list -n $COSMOSDB_ACCOUNT_NAME  -g $RESOURCE_GROUP --query primaryMasterKey --out tsv`
+
+sed -i "s|<URL>|$COSMOSDB_ENDPOINT|" components.yaml
+sed -i "s|<KEY>|$COSMOSDB_MASTER_KEY|" components.yaml
+sed -i "s|<DB>|$COSMOSDB_DB_NAME|" components.yaml
+
+az acr create \
+    --name $ACR_NAME \
+    --resource-group $RESOURCE_GROUP \
+    --sku Standard \
+    --location $LOCATION \
+    --admin-enabled
+
+ACR_PASSWORD=`az acr credential show -n $ACR_NAME --query passwords[0].value  --out tsv`
+
 # build and push container images 
-az acr build -t pythonapp:latest2 -r heroapp.azurecr.io ./src/python
-az acr build -t nodeapp:latest3 -r heroapp.azurecr.io ./src/node
+az acr build -t pythonapp:latest -r $ACR_NAME ./src/python
+az acr build -t nodeapp:latest -r $ACR_NAME ./src/node
 
 # create container apps env
 az containerapp env create \
@@ -54,11 +72,13 @@ az containerapp env create \
     --logs-workspace-key $LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET \
     --location $LOCATION
 
+IMAGE_NAME=$ACR_URL"/nodeapp:latest"
+
 az containerapp create \
     --name nodeapp \
     --resource-group $RESOURCE_GROUP \
     --environment $CONTAINERAPPS_ENVIRONMENT \
-    --image heroapp.azurecr.io/nodeapp:latest \
+    --image $IMAGE_NAME \
     --target-port 3000 \
     --ingress 'external' \
     --min-replicas 1 \
@@ -67,22 +87,24 @@ az containerapp create \
     --dapr-app-port 3000 \
     --dapr-app-id nodeapp \
     --dapr-components ./components.yaml \
-    --registry-login-server heroapp.azurecr.io \
-    --registry-username heroapp \
-    --registry-password vftYw6O3tv=AF6ZGMfJvdF6BnBlkgFEF
+    --registry-login-server $ACR_URL \
+    --registry-username $ACR_NAME \
+    --registry-password $ACR_PASSWORD
+
+IMAGE_NAME=$ACR_URL"/pythonapp:latest"
 
 az containerapp create \
     --name pythonapp \
     --resource-group $RESOURCE_GROUP \
     --environment $CONTAINERAPPS_ENVIRONMENT \
-    --image heroapp.azurecr.io/pythonapp:latest \
+    --image $IMAGE_NAME \
     --min-replicas 1 \
     --max-replicas 1 \
     --enable-dapr \
     --dapr-app-id pythonapp \
-    --registry-login-server heroapp.azurecr.io \
-    --registry-username heroapp \
-    --registry-password vftYw6O3tv=AF6ZGMfJvdF6BnBlkgFEF
+    --registry-login-server $ACR_URL \
+    --registry-username $ACR_NAME \
+    --registry-password $ACR_PASSWORD
 
 az monitor log-analytics query \
   --workspace $LOG_ANALYTICS_WORKSPACE_CLIENT_ID \

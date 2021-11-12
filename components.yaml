@@ -4,10 +4,10 @@
   version: v1
   metadata:
   - name: url
-    value: https://heroapp-cosmosdb.documents.azure.com:443/
+    value: https://shademo-cosmosdb.documents.azure.com:443/
   - name: masterKey
-    value: y0Tv5OfpLjMItnrLXENeIGp9SUvick2YuUevj20N1gPJWBx3mKqR0IEPUm1kRQMZXOMIvqJtQroP7nK3RtHm5g==
+    value: 6NCw3Jq6RNPCSTOv5vL8LUe7NjWX0omXMPBxmArbAKAMHd9yvCmWumuPdokA0MoRG8YeSaqcEMp1trdkcA2dHg==
   - name: database
-    value: HeroApp-cosmosdb
+    value: shademo-cosmosdb
   - name: collection
     value: order
