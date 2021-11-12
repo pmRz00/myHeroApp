@@ -68,7 +68,7 @@ jobs:
       - name: Build and push container image to registry
         uses: azure/CLI@v1
         with:
-          azcliversion: 2.20.0
+          azcliversion: 2.30.0
           inlineScript: |
             echo "Building and pushing image to registry"
             az acr build -t pythonapp:${{ github.sha }} -r heroapp.azurecr.io ./src/python
