@@ -113,6 +113,6 @@ az monitor log-analytics query \
   --out table
 
 sed -i "s|<YOUR_ACR>|$ACR_NAME|" ./.github/workflows/pythonapp-autodeploy-trigger.yml
-sed -i "s|<RESOURCE_GROUP> |$RESOURCE_GROUP|" ./.github/workflows/pythonapp-autodeploy-trigger.yml
+sed -i "s|<RESOURCE_GROUP>|$RESOURCE_GROUP|" ./.github/workflows/pythonapp-autodeploy-trigger.yml
 sed -i "s|<YOUR_ACR>|$ACR_NAME|" ./.github/workflows/nodeapp-autodeploy-trigger.yml
-sed -i "s|<RESOURCE_GROUP> |$RESOURCE_GROUP|" ./.github/workflows/nodeapp-autodeploy-trigger.yml
+sed -i "s|<RESOURCE_GROUP>|$RESOURCE_GROUP|" ./.github/workflows/nodeapp-autodeploy-trigger.yml
