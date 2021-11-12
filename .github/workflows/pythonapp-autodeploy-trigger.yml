@@ -72,24 +72,6 @@ jobs:
           inlineScript: |
             echo "Building and pushing image to registry"
             az acr build -t pythonapp:${{ github.sha }} -r heroapp.azurecr.io ./main/src/python
-
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    
-    steps:
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-
-      - name: Deploy to containerapp
-        uses: azure/CLI@v1
-        with:
-          azcliversion: 2.20.0
-          inlineScript: |
             echo "Installing containerapp extension"
             az extension add --source https://workerappscliextension.blob.core.windows.net/azure-cli-extension/containerapp-0.2.0-py2.py3-none-any.whl --yes
             echo "Starting Deploying"
