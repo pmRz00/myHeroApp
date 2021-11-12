@@ -11,6 +11,8 @@ COSMOSDB_COLLECTION_NAME="order"
 # set up azure cli and login
 az login --use-device-code
 az upgrade
+az extension add \
+  --source https://workerappscliextension.blob.core.windows.net/azure-cli-extension/containerapp-0.2.0-py2.py3-none-any.whl
 az provider register --namespace Microsoft.Web
 
 # create rg
@@ -40,6 +42,10 @@ az cosmosdb collection create \
     --resource-group $RESOURCE_GROUP \
     --partition-key-path /partitionKey
 
+# build and push container images 
+az acr build -t pythonapp:latest2 -r heroapp.azurecr.io ./src/python
+az acr build -t nodeapp:latest3 -r heroapp.azurecr.io ./src/node
+
 # create container apps env
 az containerapp env create \
     --name $CONTAINERAPPS_ENVIRONMENT \
@@ -52,7 +58,7 @@ az containerapp create \
     --name nodeapp \
     --resource-group $RESOURCE_GROUP \
     --environment $CONTAINERAPPS_ENVIRONMENT \
-    --image dapriosamples/hello-k8s-node:latest \
+    --image heroapp.azurecr.io/nodeapp:latest \
     --target-port 3000 \
     --ingress 'external' \
     --min-replicas 1 \
@@ -60,21 +66,26 @@ az containerapp create \
     --enable-dapr \
     --dapr-app-port 3000 \
     --dapr-app-id nodeapp \
-    --dapr-components ./components.yaml
+    --dapr-components ./components.yaml \
+    --registry-login-server heroapp.azurecr.io \
+    --registry-username heroapp \
+    --registry-password vftYw6O3tv=AF6ZGMfJvdF6BnBlkgFEF
 
 az containerapp create \
     --name pythonapp \
     --resource-group $RESOURCE_GROUP \
     --environment $CONTAINERAPPS_ENVIRONMENT \
-    --image dapriosamples/hello-k8s-python:latest \
+    --image heroapp.azurecr.io/pythonapp:latest \
     --min-replicas 1 \
     --max-replicas 1 \
     --enable-dapr \
-    --dapr-app-id pythonapp
+    --dapr-app-id pythonapp \
+    --registry-login-server heroapp.azurecr.io \
+    --registry-username heroapp \
+    --registry-password vftYw6O3tv=AF6ZGMfJvdF6BnBlkgFEF
 
 az monitor log-analytics query \
   --workspace $LOG_ANALYTICS_WORKSPACE_CLIENT_ID \
   --analytics-query "ContainerAppConsoleLogs_CL | where ContainerAppName_s == 'nodeapp' and (Log_s contains 'persisted' or Log_s contains 'order') | project ContainerAppName_s, Log_s, TimeGenerated | take 5" \
   --out table
 
-# TODO: setup ACR and Continuous Deployment for Container Apps
