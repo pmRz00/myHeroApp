@@ -5,7 +5,7 @@ on:
   # Automatically trigger it when detected changes in repo
   push:
     branches: 
-      [ main ]
+      [ feature001 ]
 
   # Allow mannually trigger 
   workflow_dispatch:
@@ -49,9 +49,9 @@ jobs:
           azcliversion: 2.30.0
           inlineScript: |
             echo "Building and pushing image to registry"
-            ACR_NAME=shademo1reg
-            az acr build -t pythonapp:${{ github.sha }} -r "$ACR_NAME".azurecr.io ./main/src/python
+            ACR_NAME=<ACR>
+            az acr build -t nodeapp:${{ github.sha }} -r "$ACR_NAME".azurecr.io ./main/src/node
             echo "Installing containerapp extension"
             az extension add --source https://workerappscliextension.blob.core.windows.net/azure-cli-extension/containerapp-0.2.0-py2.py3-none-any.whl --yes
             echo "Starting Deploying"
-            az containerapp update -n pythonapp -g shademo1-RG -i "$ACR_NAME".azurecr.io/pythonapp:${{ github.sha }} --registry-login-server "$ACR_NAME".azurecr.io --registry-username  ${{ secrets.REGISTRY_USERNAME }} --registry-password ${{ secrets.REGISTRY_PASSWORD }} --debug
+            az containerapp update -n nodeapp -g <RESOURCE_GROUP> -i "$ACR_NAME".azurecr.io/nodeapp:${{ github.sha }} --registry-login-server "$ACR_NAME".azurecr.io --registry-username  ${{ secrets.REGISTRY_USERNAME }} --registry-password ${{ secrets.REGISTRY_PASSWORD }} --debug

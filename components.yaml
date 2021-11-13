@@ -1,13 +1,12 @@
-
 - name: statestore
   type: state.azure.cosmosdb
   version: v1
   metadata:
   - name: url
-    value: https://shademo-cosmosdb.documents.azure.com:443/
+    value: https://shademo1-cosmosdb.documents.azure.com:443/
   - name: masterKey
-    value: VREvaFf2lrntNwQY5SjqRP6cvWk5UvuBT0OSPq8hFrVha2lBQcAqrBYDQH5sLZR74LbWc2QuYRWR03zSTPqwUg==
+    value: e0R5NNKz2yeVPtgBalcwLDf9PUj9oL5ikK7mfgIxdL2hX6kWiOfojgeN2ql7mlqyCKI6ED2NIcIWPzRKkFT0gw==
   - name: database
-    value: shademo-cosmosdb
+    value: shademo1-cosmosdb
   - name: collection
     value: order

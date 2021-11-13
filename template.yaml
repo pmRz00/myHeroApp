@@ -1,0 +1,12 @@
+- name: statestore
+  type: state.azure.cosmosdb
+  version: v1
+  metadata:
+  - name: url
+    value: <URL>
+  - name: masterKey
+    value: <KEY>
+  - name: database
+    value: <DB>
+  - name: collection
+    value: order

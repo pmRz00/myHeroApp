@@ -1,5 +1,5 @@
 # set parameter variables
-PREFIX="shademo"
+PREFIX="shademo1"
 RESOURCE_GROUP="$PREFIX-RG"
 LOCATION="northeurope"
 CONTAINERAPPS_ENVIRONMENT="$PREFIX-app-env"
@@ -47,6 +47,7 @@ az cosmosdb collection create \
 COSMOSDB_ENDPOINT=`az cosmosdb show -n $COSMOSDB_ACCOUNT_NAME  -g $RESOURCE_GROUP --query documentEndpoint --out tsv`
 COSMOSDB_MASTER_KEY=`az cosmosdb keys list -n $COSMOSDB_ACCOUNT_NAME  -g $RESOURCE_GROUP --query primaryMasterKey --out tsv`
 
+cp template.yaml components.yaml
 sed -i "s|<URL>|$COSMOSDB_ENDPOINT|" components.yaml
 sed -i "s|<KEY>|$COSMOSDB_MASTER_KEY|" components.yaml
 sed -i "s|<DB>|$COSMOSDB_DB_NAME|" components.yaml
@@ -60,10 +61,11 @@ az acr create \
 
 ACR_PASSWORD=`az acr credential show -n $ACR_NAME --query passwords[0].value  --out tsv`
 
-# TODO: reset PLACEHOLDER in components.yaml
-sed -i "s|<YOUR_ACR>|$ACR_NAME|" ./.github/workflows/pythonapp-autodeploy-trigger.yml
+cp ./.github/workflows/template-node.yml ./.github/workflows/nodeapp-autodeploy-trigger.yml
+cp ./.github/workflows/template-python.yml ./.github/workflows/pythonapp-autodeploy-trigger.yml
+sed -i "s|<ACR>|$ACR_NAME|" ./.github/workflows/pythonapp-autodeploy-trigger.yml
 sed -i "s|<RESOURCE_GROUP>|$RESOURCE_GROUP|" ./.github/workflows/pythonapp-autodeploy-trigger.yml
-sed -i "s|<YOUR_ACR>|$ACR_NAME|" ./.github/workflows/nodeapp-autodeploy-trigger.yml
+sed -i "s|<ACR>|$ACR_NAME|" ./.github/workflows/nodeapp-autodeploy-trigger.yml
 sed -i "s|<RESOURCE_GROUP>|$RESOURCE_GROUP|" ./.github/workflows/nodeapp-autodeploy-trigger.yml
 
 # TODO: set secrets.REGISTRY_USERNAME and secrets.REGISTRY_PASSWORD
@@ -71,8 +73,8 @@ echo $ACR_PASSWORD
 echo $ACR_NAME
 
 # build and push container images 
-az acr build -t pythonapp:latest -r $ACR_NAME ./src/python
-az acr build -t nodeapp:latest -r $ACR_NAME ./src/node
+az acr build -t pythonapp:1 -r $ACR_NAME ./src/python
+az acr build -t nodeapp:1 -r $ACR_NAME ./src/node
 
 # create container apps env
 az containerapp env create \
@@ -82,7 +84,7 @@ az containerapp env create \
     --logs-workspace-key $LOG_ANALYTICS_WORKSPACE_CLIENT_SECRET \
     --location $LOCATION
 
-IMAGE_NAME=$ACR_URL"/nodeapp:latest"
+IMAGE_NAME=$ACR_URL"/nodeapp:1"
 
 az containerapp create \
     --name nodeapp \
@@ -101,7 +103,7 @@ az containerapp create \
     --registry-username $ACR_NAME \
     --registry-password $ACR_PASSWORD
 
-IMAGE_NAME=$ACR_URL"/pythonapp:latest"
+IMAGE_NAME=$ACR_URL"/pythonapp:1"
 
 az containerapp create \
     --name pythonapp \
