@@ -12,7 +12,7 @@ dapr_url = "http://localhost:{}/v1.0/invoke/nodeapp/method/neworder".format(dapr
 
 n = 0
 while True:
-    n += 100
+    n += 1
     message = {"data": {"orderId": n}}
 
     try:
