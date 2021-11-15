@@ -21,6 +21,6 @@ while True:
             break
     if is_prime:
         print("Invoking neworder() with n = {}".format(n))
-        response = requests.post(dapr_url, json={"id": n})
+        response = requests.post(dapr_url, json={"data": {"orderId": n}})
         print("Response: {}".format(response.text))
         time.sleep(1)
