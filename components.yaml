@@ -5,7 +5,7 @@
   - name: url
     value: https://shademo1-cosmosdb.documents.azure.com:443/
   - name: masterKey
-    value: zAkL1SPZHY2nXXeC7vzDR1J6CgNHvRB8oCQYCQpW5Nn1DbZj4jJ9QDcOdMUY1mUttBZc4vZwbp1E0zIofSKTdA==
+    value: LQSSb7Q9o4O2DGjIexu3syFQtMxl6JIjIQWBVhuqAuJqW5w5Dsh0xD2dwt8Gjtxtka9GkAKUYRa4HOFnRnUizQ==
   - name: database
     value: shademo1-cosmosdb
   - name: collection
